@@ -30,6 +30,15 @@ func TestCalculatePrivateKey(t *testing.T) {
 	assertEqual(t, got, want)
 }
 
+func TestDecrypt(t *testing.T) {
+	e := 23
+	n := 187
+	c := 11
+	got := decrypt(c, e, n)
+	want := 88
+	assertEqual(t, got, want)
+}
+
 func assertErrorNil(t *testing.T, actual error) {
 	t.Helper()
 	if actual != nil {

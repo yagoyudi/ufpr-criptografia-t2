@@ -64,11 +64,28 @@ func calculatePrivateKey(e, n int) (int, error) {
 	return d, nil
 }
 
+// Decrypt descriptografa o texto cifrado c usando a chave privada {d, n}.
+func decrypt(c, d, n int) int {
+	plaintext := 1
+	base := c % n
+
+	for d > 0 {
+		if d%2 == 1 {
+			plaintext = (plaintext * base) % n
+		}
+		base = (base * base) % n
+		d /= 2
+	}
+
+	return plaintext
+}
+
 func main() {
 	e := flag.Int("e", 0, "Valor de e")
 	n := flag.Int("n", 0, "Valor de n")
+	c := flag.Int("c", 0, "Valor de c")
 	flag.Parse()
-	if *e == 0 || *n == 0 {
+	if *e == 0 || *n == 0 || *c == 0 {
 		fmt.Println("Uso: go run main.go -e <valor> -n <valor>")
 		return
 	}
@@ -77,5 +94,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("d=%d\n", d)
+
+	plaintext := decrypt(*c, d, *n)
+	fmt.Printf("%d\n", plaintext)
 }
