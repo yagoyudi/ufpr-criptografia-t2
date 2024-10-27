@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
 	"math/big"
+	"os"
+	"strings"
 )
 
 // Maior valor de p e q.
@@ -55,14 +58,12 @@ func decrypt(c, d, n *big.Int) *big.Int {
 func main() {
 	e := flag.String("e", "", "Valor de e")
 	n := flag.String("n", "", "Valor de n")
-	c := flag.String("c", "", "Valor de c")
 	flag.Parse()
-	if *e == "" || *n == "" || *c == "" {
-		fmt.Println("Uso: go run main.go -e <valor> -n <valor> -c <valor>")
+	if *e == "" || *n == "" {
+		fmt.Println("Uso: go run main.go -e <valor> -n <valor>")
 		return
 	}
 
-	// Converte de string para bit.Int
 	eInt, ok := new(big.Int).SetString(*e, 10)
 	if !ok {
 		log.Fatal("erro: valor de e inválido")
@@ -71,7 +72,14 @@ func main() {
 	if !ok {
 		log.Fatal("erro: valor de n inválido")
 	}
-	cInt, ok := new(big.Int).SetString(*c, 10)
+
+	reader := bufio.NewReader(os.Stdin)
+	cStr, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatal("erro ao ler c da entrada padrão:", err)
+	}
+	cStr = strings.TrimSpace(cStr)
+	cInt, ok := new(big.Int).SetString(cStr, 10)
 	if !ok {
 		log.Fatal("erro: valor de c inválido")
 	}
