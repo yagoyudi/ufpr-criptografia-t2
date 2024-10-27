@@ -58,14 +58,23 @@ func main() {
 	c := flag.String("c", "", "Valor de c")
 	flag.Parse()
 	if *e == "" || *n == "" || *c == "" {
-		fmt.Println("Uso: go run main.go -e <valor> -n <valor>")
+		fmt.Println("Uso: go run main.go -e <valor> -n <valor> -c <valor>")
 		return
 	}
 
 	// Converte de string para bit.Int
-	eInt, _ := new(big.Int).SetString(*e, 10)
-	nInt, _ := new(big.Int).SetString(*n, 10)
-	cInt, _ := new(big.Int).SetString(*c, 10)
+	eInt, ok := new(big.Int).SetString(*e, 10)
+	if !ok {
+		log.Fatal("erro: valor de e inválido")
+	}
+	nInt, ok := new(big.Int).SetString(*n, 10)
+	if !ok {
+		log.Fatal("erro: valor de n inválido")
+	}
+	cInt, ok := new(big.Int).SetString(*c, 10)
+	if !ok {
+		log.Fatal("erro: valor de c inválido")
+	}
 
 	d, err := calculatePrivateKey(eInt, nInt)
 	if err != nil {
