@@ -22,35 +22,54 @@ var decryptCmd = &cobra.Command{
 	Long:  "Decrypt ciphertext c using public key {e, n}",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		e, ok := new(big.Int).SetString(args[0], 10)
-		if !ok {
-			log.Fatal("error: invalid e")
-		}
-		n, ok := new(big.Int).SetString(args[1], 10)
-		if !ok {
-			log.Fatal("error: invalid n")
-		}
-
-		d, err := srsa.CalculatePrivateKey(e, n)
+		privateKey, err := initializePrivateKey(args[0], args[1])
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		privateKey := srsa.PrivateKey{
-			N: n,
-			D: d,
+		ciphertext, err := readCiphertextFromStdin()
+		if err != nil {
+			log.Fatal(err)
 		}
 
-		reader := bufio.NewReader(os.Stdin)
-		c, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
-		ciphertext, err := base64.StdEncoding.DecodeString(c)
-		if err != nil {
-			log.Fatal(err)
-		}
-		plaintext := srsa.DecryptBytes(&privateKey, ciphertext)
+		plaintext := srsa.DecryptBytes(privateKey, ciphertext)
 		fmt.Printf("%s\n", string(plaintext))
 	},
+}
+
+func initializePrivateKey(eStr, nStr string) (*srsa.PrivateKey, error) {
+	e, ok := new(big.Int).SetString(eStr, 10)
+	if !ok {
+		return nil, fmt.Errorf("error: invalid e")
+	}
+	n, ok := new(big.Int).SetString(nStr, 10)
+	if !ok {
+		return nil, fmt.Errorf("error: invalid n")
+	}
+
+	d, err := srsa.CalculatePrivateKey(e, n)
+	if err != nil {
+		return nil, err
+	}
+
+	priv := srsa.PrivateKey{
+		N: n,
+		D: d,
+	}
+	return &priv, nil
+}
+
+func readCiphertextFromStdin() ([]byte, error) {
+	reader := bufio.NewReader(os.Stdin)
+	encodedCiphertext, err := reader.ReadString('\n')
+	if err != nil {
+		return nil, err
+	}
+
+	ciphertext, err := base64.StdEncoding.DecodeString(encodedCiphertext)
+	if err != nil {
+		return nil, err
+	}
+
+	return ciphertext, nil
 }

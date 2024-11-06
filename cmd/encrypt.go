@@ -22,27 +22,43 @@ var encryptCmd = &cobra.Command{
 	Long:  "Encrypt plaintext c using public key {e, n}",
 	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		e, ok := new(big.Int).SetString(args[0], 10)
-		if !ok {
-			log.Fatal("error: invalid e")
-		}
-		n, ok := new(big.Int).SetString(args[1], 10)
-		if !ok {
-			log.Fatal("error: invalid n")
-		}
-
-		publicKey := srsa.PublicKey{
-			N: n,
-			E: e,
-		}
-
-		reader := bufio.NewReader(os.Stdin)
-		plaintext, err := reader.ReadString('\n')
+		publicKey, err := initializePublicKey(args[0], args[1])
 		if err != nil {
-			log.Fatal("error: invalid plaintext")
+			log.Fatal(err)
 		}
 
-		ciphertext := srsa.EncryptBytes(&publicKey, []byte(plaintext))
+		plaintext, err := readPlaintextFromStdin()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		ciphertext := srsa.EncryptBytes(publicKey, []byte(plaintext))
 		fmt.Println(base64.StdEncoding.EncodeToString(ciphertext))
 	},
+}
+
+func initializePublicKey(eStr, nStr string) (*srsa.PublicKey, error) {
+	e, ok := new(big.Int).SetString(eStr, 10)
+	if !ok {
+		return nil, fmt.Errorf("error: invalid e")
+	}
+	n, ok := new(big.Int).SetString(nStr, 10)
+	if !ok {
+		return nil, fmt.Errorf("error: invalid n")
+	}
+
+	pub := srsa.PublicKey{
+		N: n,
+		E: e,
+	}
+	return &pub, nil
+}
+
+func readPlaintextFromStdin() (string, error) {
+	reader := bufio.NewReader(os.Stdin)
+	plaintext, err := reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	return plaintext, nil
 }
