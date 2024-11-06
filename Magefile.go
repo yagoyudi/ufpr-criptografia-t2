@@ -7,7 +7,7 @@ import "github.com/magefile/mage/sh"
 var Default = Build
 
 func Build() error {
-	err := sh.RunV("go", "build", "-o", "bin/t1", "./cmd/t1")
+	err := sh.RunV("go", "build", "-o", "bin/t2", ".")
 	if err != nil {
 		return err
 	}

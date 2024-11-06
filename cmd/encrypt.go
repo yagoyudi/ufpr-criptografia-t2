@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/yagoyudi/criptografia-t2/internal/srsa"
 )
 
 func init() {
@@ -19,49 +20,29 @@ var encryptCmd = &cobra.Command{
 	Use:   "encrypt [E] [N]",
 	Short: "Encrypt plaintext",
 	Long:  "Encrypt plaintext c using public key {e, n}",
-	Run:   encrypt,
-}
+	Args:  cobra.ExactArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		e, ok := new(big.Int).SetString(args[0], 10)
+		if !ok {
+			log.Fatal("error: invalid e")
+		}
+		n, ok := new(big.Int).SetString(args[1], 10)
+		if !ok {
+			log.Fatal("error: invalid n")
+		}
 
-func encrypt(cmd *cobra.Command, args []string) {
-	if len(args) != 2 {
-		log.Fatal("error: requires 2 arguments")
-	}
+		publicKey := srsa.PublicKey{
+			N: n,
+			E: e,
+		}
 
-	e, ok := new(big.Int).SetString(args[0], 10)
-	if !ok {
-		log.Fatal("error: invalid e")
-	}
-	n, ok := new(big.Int).SetString(args[1], 10)
-	if !ok {
-		log.Fatal("error: invalid n")
-	}
+		reader := bufio.NewReader(os.Stdin)
+		plaintext, err := reader.ReadString('\n')
+		if err != nil {
+			log.Fatal("error: invalid plaintext")
+		}
 
-	publicKey := PublicKey{
-		N: n,
-		E: e,
-	}
-
-	reader := bufio.NewReader(os.Stdin)
-	plaintext, err := reader.ReadString('\n')
-	if err != nil {
-		log.Fatal("error: invalid plaintext")
-	}
-
-	ciphertext := encryptBytes(&publicKey, []byte(plaintext))
-	fmt.Println(base64.StdEncoding.EncodeToString(ciphertext))
-}
-
-func encryptBytes(pub *PublicKey, plainBytes []byte) []byte {
-	var cipheredBytes []byte
-	for _, plainByte := range plainBytes {
-		cipheredByte := encryptByte(pub, plainByte)
-		cipheredBytes = append(cipheredBytes, cipheredByte)
-	}
-	return cipheredBytes
-}
-
-func encryptByte(pub *PublicKey, b byte) byte {
-	m := big.NewInt(int64(b))
-	c := new(big.Int).Exp(m, pub.E, pub.N)
-	return byte(c.Int64())
+		ciphertext := srsa.EncryptBytes(&publicKey, []byte(plaintext))
+		fmt.Println(base64.StdEncoding.EncodeToString(ciphertext))
+	},
 }
