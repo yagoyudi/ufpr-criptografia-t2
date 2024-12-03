@@ -42,7 +42,7 @@ func findPrimes(n *big.Int) (*big.Int, *big.Int, error) {
 	return nil, nil, fmt.Errorf("error: couldn't find valid (p, q)")
 }
 
-func DecryptBytes(priv *PrivateKey, cipheredBytes []byte) []byte {
+func Decrypt(priv *PrivateKey, cipheredBytes []byte) []byte {
 	var plainBytes []byte
 	for _, cipheredByte := range cipheredBytes {
 		plainBytes = append(plainBytes, decryptByte(priv, cipheredByte))

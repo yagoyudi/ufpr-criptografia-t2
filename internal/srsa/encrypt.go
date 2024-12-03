@@ -4,7 +4,7 @@ import (
 	"math/big"
 )
 
-func EncryptBytes(pub *PublicKey, plainBytes []byte) []byte {
+func Encrypt(pub *PublicKey, plainBytes []byte) []byte {
 	var cipheredBytes []byte
 	for _, plainByte := range plainBytes {
 		cipheredByte := encryptByte(pub, plainByte)

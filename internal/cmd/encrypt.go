@@ -17,7 +17,7 @@ func init() {
 }
 
 var encryptCmd = &cobra.Command{
-	Use:   "encrypt [E] [N]",
+	Use:   "enc [E] [N]",
 	Short: "Encrypt plaintext",
 	Long:  "Encrypt plaintext c using public key {e, n}",
 	Args:  cobra.ExactArgs(2),
@@ -32,7 +32,7 @@ var encryptCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		ciphertext := srsa.EncryptBytes(publicKey, []byte(plaintext))
+		ciphertext := srsa.Encrypt(publicKey, []byte(plaintext))
 		fmt.Println(base64.StdEncoding.EncodeToString(ciphertext))
 	},
 }

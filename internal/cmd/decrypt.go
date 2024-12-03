@@ -17,7 +17,7 @@ func init() {
 }
 
 var decryptCmd = &cobra.Command{
-	Use:   "decrypt [E] [N]",
+	Use:   "dec [E] [N]",
 	Short: "Decrypt ciphertext",
 	Long:  "Decrypt ciphertext c using public key {e, n}",
 	Args:  cobra.ExactArgs(2),
@@ -32,7 +32,7 @@ var decryptCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		plaintext := srsa.DecryptBytes(privateKey, ciphertext)
+		plaintext := srsa.Decrypt(privateKey, ciphertext)
 		fmt.Printf("%s\n", string(plaintext))
 	},
 }
