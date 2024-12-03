@@ -29,7 +29,7 @@ Para detalhes sobre como usar o programa, execute:
 
 -   `echo hello | ./bin/t2 enc 7 187`
 
-    Criptografa a mensagem "hello" usando a chave públic {7, 187}.
+    Criptografa a mensagem "hello" usando a chave pública {7, 187}.
 
 -   `echo s1QwMJuv | ./bin/t2 dec 7 187`
 
