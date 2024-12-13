@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bufio"
 	"encoding/base64"
 	"fmt"
 	"log"
@@ -20,21 +19,23 @@ var encryptCmd = &cobra.Command{
 	Use:   "enc [E] [N]",
 	Short: "Encrypt plaintext",
 	Long:  "Encrypt plaintext c using public key {e, n}",
-	Args:  cobra.ExactArgs(2),
-	Run: func(cmd *cobra.Command, args []string) {
-		publicKey, err := initializePublicKey(args[0], args[1])
-		if err != nil {
-			log.Fatal(err)
-		}
+	Args:  cobra.ExactArgs(3),
+	Run:   encryptMain,
+}
 
-		plaintext, err := readPlaintextFromStdin()
-		if err != nil {
-			log.Fatal(err)
-		}
+func encryptMain(cmd *cobra.Command, args []string) {
+	publicKey, err := initializePublicKey(args[0], args[1])
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		ciphertext := srsa.Encrypt(publicKey, []byte(plaintext))
-		fmt.Println(base64.StdEncoding.EncodeToString(ciphertext))
-	},
+	plaintext, err := os.ReadFile(args[2])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ciphertext := srsa.Encrypt(publicKey, []byte(plaintext))
+	fmt.Println(base64.StdEncoding.EncodeToString(ciphertext))
 }
 
 func initializePublicKey(eStr, nStr string) (*srsa.PublicKey, error) {
@@ -52,13 +53,4 @@ func initializePublicKey(eStr, nStr string) (*srsa.PublicKey, error) {
 		E: e,
 	}
 	return &pub, nil
-}
-
-func readPlaintextFromStdin() (string, error) {
-	reader := bufio.NewReader(os.Stdin)
-	plaintext, err := reader.ReadString('\n')
-	if err != nil {
-		return "", err
-	}
-	return plaintext, nil
 }
